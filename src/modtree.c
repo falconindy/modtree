@@ -32,14 +32,23 @@ static struct colinfo infos[MODTREE_NCOLUMNS] = {
 };
 
 static const struct option longopts[] = {
-	{ "help",   0, 0, 'h' },
-	{ "kernel", 1, 0, 'k' },
-	{ "list",   0, 0, 'l' },
+	{ "help",       0, 0, 'h' },
+	{ "kernel",     1, 0, 'k' },
+	{ "list",       0, 0, 'l' },
+	{ "noheadings", 0, 0, 'n' },
+	{ "notrunacte", 0, 0, 'u' },
 };
 
 static int tt_flags;
 static int columns[MODTREE_NCOLUMNS];
 static int ncolumns;
+
+static void disable_column_truncate(void)
+{
+	int i;
+	for (i = 0; i < MODTREE_NCOLUMNS; i++)
+		infos[i].flags &= ~TT_FL_TRUNC;
+}
 
 static int get_column_id(int num)
 {
@@ -236,6 +245,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			"Options:\n"
 			" -h, --help             display this help text and exit\n"
 			" -k, --kernel VERSION   use VERSION instead of $(uname -r)\n"
+			" -n, --noheadings       don't print column headings\n"
+			" -u, --notruncate       don't truncate text in columns\n"
 			" -l, --list             use list format output\n",
 				program_invocation_short_name);
 
@@ -264,7 +275,7 @@ int main(int argc, char *argv[])
 	for (;;) {
 		int opt, idx;
 
-		opt = getopt_long(argc, argv, "hk:l", longopts, &idx);
+		opt = getopt_long(argc, argv, "hk:nlu", longopts, &idx);
 		if (opt < 0)
 			break;
 
@@ -276,6 +287,12 @@ int main(int argc, char *argv[])
 			break;
 		case 'l':
 			tt_flags &= ~TT_FL_TREE;
+			break;
+		case 'n':
+			tt_flags |= TT_FL_NOHEADINGS;
+			break;
+		case 'u':
+			disable_column_truncate();
 			break;
 		default:
 			return EXIT_FAILURE;
