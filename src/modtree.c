@@ -426,6 +426,7 @@ int main(int argc, char *argv[])
 	}
 
 	tt_print_table(tt);
+	tt_free_table(tt);
 
 	kmod_unref(kmod);
 	return rc >= 0 ? EXIT_SUCCESS : EXIT_FAILURE;
