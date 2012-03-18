@@ -37,11 +37,69 @@ static const struct option longopts[] = {
 	{ "list",       0, 0, 'l' },
 	{ "noheadings", 0, 0, 'n' },
 	{ "notrunacte", 0, 0, 'u' },
+	{ "output",     1, 0, 'o' },
 };
 
 static int tt_flags;
 static int columns[MODTREE_NCOLUMNS];
 static int ncolumns;
+
+int string_to_idarray(const char *list, int ary[], size_t arysz,
+			int (name2id)(const char *, size_t))
+{
+	const char *begin = NULL, *p;
+	size_t n = 0;
+
+	if (!list || !*list || !ary || !arysz || !name2id)
+		return -1;
+
+	for (p = list; p && *p; p++) {
+		const char *end = NULL;
+		int id;
+
+		if (n >= arysz)
+			return -2;
+		if (!begin)
+			begin = p;		/* begin of the column name */
+		if (*p == ',')
+			end = p;		/* terminate the name */
+		if (*(p + 1) == '\0')
+			end = p + 1;		/* end of string */
+		if (!begin || !end)
+			continue;
+		if (end <= begin)
+			return -1;
+
+		id = name2id(begin, end - begin);
+		if (id == -1)
+			return -1;
+		ary[ n++ ] = id;
+		begin = NULL;
+		if (end && !*end)
+			break;
+	}
+	return n;
+}
+
+static const char *column_id_to_name(int id)
+{
+	assert(id < MODTREE_NCOLUMNS);
+	return infos[id].name;
+}
+
+static int column_name_to_id(const char *name, size_t namesz)
+{
+	int i;
+
+	for (i = 0; i < MODTREE_NCOLUMNS; i++) {
+		const char *cn = column_id_to_name(i);
+
+		if (!strncasecmp(name, cn, namesz) && !*(cn + namesz))
+			return i;
+	}
+	warnx("unknown column: %s", name);
+	return -1;
+}
 
 static void disable_column_truncate(void)
 {
@@ -244,10 +302,11 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			" %s [options] modules...\n\n"
 			"Options:\n"
 			" -h, --help             display this help text and exit\n"
-			" -k, --kernel VERSION   use VERSION instead of $(uname -r)\n"
+			" -k, --kernel <version> use VERSION instead of $(uname -r)\n"
 			" -n, --noheadings       don't print column headings\n"
 			" -u, --notruncate       don't truncate text in columns\n"
-			" -l, --list             use list format output\n",
+			" -l, --list             use list format output\n"
+			" -o, --output <list>    the output columns to be shown\n",
 				program_invocation_short_name);
 
 	fputs("\nAvailable columns:\n", out);
@@ -275,7 +334,7 @@ int main(int argc, char *argv[])
 	for (;;) {
 		int opt, idx;
 
-		opt = getopt_long(argc, argv, "hk:nlu", longopts, &idx);
+		opt = getopt_long(argc, argv, "hk:lno:u", longopts, &idx);
 		if (opt < 0)
 			break;
 
@@ -290,6 +349,14 @@ int main(int argc, char *argv[])
 			break;
 		case 'n':
 			tt_flags |= TT_FL_NOHEADINGS;
+			break;
+		case 'o':
+			ncolumns = string_to_idarray(optarg, columns,
+					ARRAY_SIZE(columns), column_name_to_id);
+			if (ncolumns < 0) {
+				fprintf(stderr, "wat\n");
+				exit(EXIT_FAILURE);
+			}
 			break;
 		case 'u':
 			disable_column_truncate();
