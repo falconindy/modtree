@@ -7,6 +7,7 @@ AM_CPPFLAGS = \
 	-imacros $(top_builddir)/config.h \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\" \
+	-DROOTPREFIX=\""$(rootprefix)"\" \
 	-I${top_srcdir}/src
 
 AM_CFLAGS = ${my_CFLAGS} \
@@ -37,7 +38,10 @@ src_modtree_SOURCES = \
 	src/tt.c src/tt.h \
 	src/widechar.h
 
+src_modtree_CFLAGS = \
+	$(KMOD_CFLAGS)
+
 src_modtree_LDFLAGS = \
-	-lkmod
+	$(KMOD_LIBS)
 
 bin_PROGRAMS = src/modtree

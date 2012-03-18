@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 			err(EXIT_FAILURE, "failed to get current kernel name");
 		kver = u.release;
 	}
-	snprintf(kdir_buf, sizeof(kdir_buf), "/lib/modules/%s", kver);
+	snprintf(kdir_buf, sizeof(kdir_buf), ROOTPREFIX "/lib/modules/%s", kver);
 
 	kmod = kmod_new(kdir_buf, NULL);
 	if (kmod == NULL) {

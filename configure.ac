@@ -22,6 +22,8 @@ AC_CHECK_HEADERS([ \
 	sys/ioctl.h
 ])
 
+PKG_CHECK_MODULES(KMOD, [ libkmod >= 5 ])
+
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <wchar.h>
 #include <wctype.h>
@@ -37,19 +39,10 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 [AC_DEFINE(HAVE_WIDECHAR, 1, Do we have wide character support?)
 ])
 
-#AC_ARG_ENABLE([logging],
-#        AS_HELP_STRING([--disable-nls], [disable system logging @<:@default=enabled@:>@]),
-#        [], enable_logging=yes)
-#AS_IF([test "x$enable_logging" = "xyes"], [
-#        AC_DEFINE(ENABLE_LOGGING, [1], [System logging.])
-#])
-
-#AC_ARG_ENABLE([debug],
-#        AS_HELP_STRING([--enable-debug], [enable debug messages @<:@default=disabled@:>@]),
-#        [], [enable_debug=no])
-#AS_IF([test "x$enable_debug" = "xyes"], [
-#        AC_DEFINE(ENABLE_DEBUG, [1], [Debug messages.])
-#])
+AC_ARG_WITH([rootprefix],
+        AS_HELP_STRING([--with-rootprefix=DIR], [rootfs directory prefix for config files and kernel modules]),
+        [], [with_rootprefix=""])
+AC_SUBST([rootprefix], [$with_rootprefix])
 
 my_CFLAGS="-Wall \
 -Wmissing-declarations -Wmissing-prototypes \
@@ -70,6 +63,7 @@ AC_MSG_RESULT([
 	=====
 
 	prefix:                 ${prefix}
+	rootprefix              ${rootprefix}
 	sysconfdir:             ${sysconfdir}
 	libdir:                 ${libdir}
 	includedir:             ${includedir}
