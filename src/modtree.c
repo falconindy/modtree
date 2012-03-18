@@ -304,7 +304,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			"Options:\n"
 			" -a, --ascii            use ASCII characters for tree format\n"
 			" -h, --help             display this help text and exit\n"
-			" -k, --kernel <version> use VERSION instead of $(uname -r)\n"
+			" -k, --kernel <version> specify kernel version instead of $(uname -r)\n"
 			" -n, --noheadings       don't print column headings\n"
 			" -u, --notruncate       don't truncate text in columns\n"
 			" -l, --list             use list format output\n"
