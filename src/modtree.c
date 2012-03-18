@@ -32,6 +32,7 @@ static struct colinfo infos[MODTREE_NCOLUMNS] = {
 };
 
 static const struct option longopts[] = {
+	{ "ascii",      0, 0, 'a' },
 	{ "help",       0, 0, 'h' },
 	{ "kernel",     1, 0, 'k' },
 	{ "list",       0, 0, 'l' },
@@ -301,6 +302,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			"Usage:\n"
 			" %s [options] modules...\n\n"
 			"Options:\n"
+			" -a, --ascii            use ASCII characters for tree format\n"
 			" -h, --help             display this help text and exit\n"
 			" -k, --kernel <version> use VERSION instead of $(uname -r)\n"
 			" -n, --noheadings       don't print column headings\n"
@@ -334,11 +336,14 @@ int main(int argc, char *argv[])
 	for (;;) {
 		int opt, idx;
 
-		opt = getopt_long(argc, argv, "hk:lno:u", longopts, &idx);
+		opt = getopt_long(argc, argv, "ahk:lno:u", longopts, &idx);
 		if (opt < 0)
 			break;
 
 		switch (opt) {
+		case 'a':
+			tt_flags |= TT_FL_ASCII;
+			break;
 		case 'h':
 			usage(stdout);
 		case 'k':
@@ -367,7 +372,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (optind >= argc)
-		errx(EXIT_FAILURE, "missing module name\n");
+		errx(EXIT_FAILURE, "missing module name");
 
 	argc -= optind;
 	argv += optind;
