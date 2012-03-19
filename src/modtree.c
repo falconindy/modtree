@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <sys/stat.h>
 #include <sys/utsname.h>
+#include <unistd.h>
 
 #include <libkmod.h>
 
@@ -184,8 +185,8 @@ static struct tt_line *add_line(struct tt *tt, struct kmod_module *mod,
 	return line;
 }
 
-static int modtree_do(struct kmod_ctx *kmod, struct tt *tt, struct kmod_module *mod,
-		struct tt_line *parent_line)
+static int modtree_do(struct kmod_ctx *kmod, struct tt *tt,
+		struct kmod_module *mod, struct tt_line *parent_line)
 {
 	int rc;
 	struct tt_line *line;
@@ -213,7 +214,8 @@ static int modtree_do(struct kmod_ctx *kmod, struct tt *tt, struct kmod_module *
 
 		/* loop over list,of,depends */
 		depstring = strdup(v);
-		for (dep = strtok_r(depstring, ",", &saveptr); dep; dep = strtok_r(NULL, ",", &saveptr)) {
+		for (dep = strtok_r(depstring, ",", &saveptr); dep;
+				 dep = strtok_r(NULL, ",", &saveptr)) {
 			struct kmod_list *d, *deplist = NULL;
 			int r = kmod_module_new_from_lookup(kmod, dep, &deplist);
 
@@ -378,7 +380,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (optind >= argc)
-		errx(EXIT_FAILURE, "missing module name");
+		errx(EXIT_FAILURE, "no modules specified (use -h for help)");
 
 	argc -= optind;
 	argv += optind;
@@ -391,6 +393,9 @@ int main(int argc, char *argv[])
 		kver = u.release;
 	}
 	snprintf(kdir_buf, sizeof(kdir_buf), ROOTPREFIX "/lib/modules/%s", kver);
+
+	if (access(kdir_buf, F_OK) != 0)
+		err(EXIT_FAILURE, "%s does not appear to be a valid directory", kdir_buf);
 
 	kmod = kmod_new(kdir_buf, NULL);
 	if (kmod == NULL) {
