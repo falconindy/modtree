@@ -6,7 +6,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <sys/utsname.h>
+#include <wait.h>
 #include <unistd.h>
 
 #include <libkmod.h>
@@ -33,6 +35,7 @@ static struct colinfo infos[MODTREE_NCOLUMNS] = {
 };
 
 static const struct option longopts[] = {
+	{ "dumpall",    0, 0, 'A' },
 	{ "ascii",      0, 0, 'a' },
 	{ "help",       0, 0, 'h' },
 	{ "kernel",     1, 0, 'k' },
@@ -297,6 +300,60 @@ static int modtree_path_do(struct tt *tt, struct kmod_ctx *kmod,
 	return rc;
 }
 
+static int dump_full_tree(struct kmod_ctx *kmod, struct tt *tt, const char *kdir)
+{
+	int rc, status, pfd[2];
+	pid_t pid;
+	char buf[BUFSIZ], modpath[PATH_MAX];
+	FILE *fp;
+
+	if (pipe(pfd)) {
+		warn("failed to create pipe FDs");
+		return 1;
+	}
+
+	pid = fork();
+	switch (pid) {
+	case -1:
+		warn("failed to fork child process");
+		return 1;
+	case 0:
+		close(pfd[0]);
+		if (kmod_dump_index(kmod, KMOD_INDEX_MODULES_DEP, pfd[1]) != 0) {
+			warn("failed to dump module dependency index");
+			exit(EXIT_FAILURE);
+		}
+		close(pfd[1]);
+		exit(EXIT_SUCCESS);
+		break;
+	default:
+		close(pfd[1]);
+		fp = fdopen(pfd[0], "r");
+		while (fgets(buf, sizeof(buf), fp)) {
+			char *s, *colon;
+			int r;
+
+			strtok(buf, " ");
+			s = strtok(NULL, ":");
+
+			snprintf(modpath, sizeof(modpath), "%s/%s", kdir, s);
+			r = modtree_path_do(tt, kmod, modpath);
+			if (r != 0)
+				rc = r;
+		}
+		fclose(fp);
+		close(pfd[0]);
+		break;
+	}
+
+	waitpid(pid, &status, 0);
+
+	if (rc == 0)
+		rc = WEXITSTATUS(status);
+
+	return rc;
+}
+
 static void __attribute__((__noreturn__)) usage(FILE *out)
 {
 	int i;
@@ -305,6 +362,7 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			"Usage:\n"
 			" %s [options] modules...\n\n"
 			"Options:\n"
+			" -A, --dumpall          dump full module tree\n"
 			" -a, --ascii            use ASCII characters for tree format\n"
 			" -h, --help             display this help text and exit\n"
 			" -k, --kernel <version> specify kernel version instead of $(uname -r)\n"
@@ -329,6 +387,7 @@ int main(int argc, char *argv[])
 	struct kmod_ctx *kmod;
 	int i, rc = 0;
 	char kdir_buf[PATH_MAX];
+	bool dump_all = false;
 
 	const char *kver = NULL;
 
@@ -340,11 +399,14 @@ int main(int argc, char *argv[])
 	for (;;) {
 		int opt, idx;
 
-		opt = getopt_long(argc, argv, "ahk:lno:ru", longopts, &idx);
+		opt = getopt_long(argc, argv, "Aahk:lno:ru", longopts, &idx);
 		if (opt < 0)
 			break;
 
 		switch (opt) {
+		case 'A':
+			dump_all = true;
+			break;
 		case 'a':
 			tt_flags |= TT_FL_ASCII;
 			break;
@@ -379,7 +441,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (optind >= argc)
+	if (optind >= argc && !dump_all)
 		errx(EXIT_FAILURE, "no modules specified (use -h for help)");
 
 	argc -= optind;
@@ -423,17 +485,22 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	for (i = 0; i < argc; i++) {
-		const char *name = argv[i];
-		int r;
+	if (dump_all)
+		rc = dump_full_tree(kmod, tt, kdir_buf);
+	else {
 
-		if (is_module_filename(name))
-			r = modtree_path_do(tt, kmod, name);
-		else
-			r = modtree_alias_do(tt, kmod, name);
+		for (i = 0; i < argc; i++) {
+			const char *name = argv[i];
+			int r;
 
-		if (r < 0)
-			rc = r;
+			if (is_module_filename(name))
+				r = modtree_path_do(tt, kmod, name);
+			else
+				r = modtree_alias_do(tt, kmod, name);
+
+			if (r < 0)
+				rc = r;
+		}
 	}
 
 	tt_print_table(tt);
