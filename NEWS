@@ -3,5 +3,6 @@ modtree 1
 first release
 
 - allow specifying modules by path or alias
+- dump full module tree
 - support basic options to control table output
 - provide name and path as output columns
