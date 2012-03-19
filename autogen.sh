@@ -13,9 +13,7 @@ libdir() (
 	pwd
 )
 
-args="--prefix=/usr \
---sysconfdir=/etc \
---libdir=$(libdir /usr/lib)"
+args="--prefix=/usr"
 
 echo
 echo "----------------------------------------------------------------"
