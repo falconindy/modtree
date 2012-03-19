@@ -39,6 +39,7 @@ static const struct option longopts[] = {
 	{ "noheadings", 0, 0, 'n' },
 	{ "notrunacte", 0, 0, 'u' },
 	{ "output",     1, 0, 'o' },
+	{ "raw",        0, 0, 'r' },
 };
 
 static int tt_flags;
@@ -308,7 +309,8 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			" -n, --noheadings       don't print column headings\n"
 			" -u, --notruncate       don't truncate text in columns\n"
 			" -l, --list             use list format output\n"
-			" -o, --output <list>    the output columns to be shown\n",
+			" -o, --output <list>    the output columns to be shown\n"
+			" -r, --raw              use unformatted output\n",
 				program_invocation_short_name);
 
 	fputs("\nAvailable columns:\n", out);
@@ -336,7 +338,7 @@ int main(int argc, char *argv[])
 	for (;;) {
 		int opt, idx;
 
-		opt = getopt_long(argc, argv, "ahk:lno:u", longopts, &idx);
+		opt = getopt_long(argc, argv, "ahk:lno:ru", longopts, &idx);
 		if (opt < 0)
 			break;
 
@@ -362,6 +364,10 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "wat\n");
 				exit(EXIT_FAILURE);
 			}
+			break;
+		case 'r':
+			tt_flags &= ~TT_FL_TREE;
+			tt_flags |= TT_FL_RAW;
 			break;
 		case 'u':
 			disable_column_truncate();
