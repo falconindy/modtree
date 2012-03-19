@@ -44,13 +44,27 @@ AC_ARG_WITH([rootprefix],
         [], [with_rootprefix=""])
 AC_SUBST([rootprefix], [$with_rootprefix])
 
-my_CFLAGS="-Wall \
--Wmissing-declarations -Wmissing-prototypes \
--Wnested-externs -Wpointer-arith \
--Wpointer-arith -Wsign-compare -Wchar-subscripts \
--Wstrict-prototypes -Wshadow \
--Wformat-security -Wtype-limits"
-AC_SUBST([my_CFLAGS])
+CC_CHECK_FLAGS_APPEND(with_cflags, [CFLAGS], [ \
+	-Wmissing-declarations \
+	-Wmissing-prototypes \
+	-Wnested-externs \
+	-Wpointer-arith \
+	-Wpointer-arith \
+	-Wsign-compare \
+	-Wchar-subscripts \
+	-Wstrict-prototypes \
+	-Wshadow \
+	-Wformat-security \
+	-Wformat \
+	-Wtype-limits \
+])
+AC_SUBST([WARNINGFLAGS], $with_cflags)
+
+CC_CHECK_FLAGS_APPEND([with_ldflags], [LDFLAGS], [ \
+	-Wl,--as-needed \
+	-Wl,--gc-sections \
+])
+AC_SUBST([GCLDFLAGS], $with_ldflags)
 
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
@@ -69,8 +83,8 @@ AC_MSG_RESULT([
 	includedir:             ${includedir}
 
 	compiler:               ${CC}
-	cflags:                 ${CFLAGS}
-	ldflags:                ${LDFLAGS}
+	cflags:                 ${with_cflags} ${CFLAGS}
+	ldflags:                ${with_ldflags} ${LDFLAGS}
 
 	logging:                ${enable_logging}
 	debug:                  ${enable_debug}

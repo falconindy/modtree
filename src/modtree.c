@@ -50,8 +50,8 @@ static int tt_flags;
 static int columns[MODTREE_NCOLUMNS];
 static int ncolumns;
 
-int string_to_idarray(const char *list, int ary[], size_t arysz,
-			int (name2id)(const char *, size_t))
+static int string_to_idarray(const char *list, int ary[],
+		size_t arysz, int (name2id)(const char *, size_t))
 {
 	const char *begin = NULL, *p;
 	size_t n = 0;

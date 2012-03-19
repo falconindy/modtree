@@ -3,21 +3,15 @@ CLEANFILES =
 ACLOCAL_AMFLAGS = -I m4 ${ACLOCAL_FLAGS}
 AM_MAKEFLAGS = --no-print-directory
 
+AM_CFLAGS = $(WARNINGFLAGS)
+AM_LDFLAGS = $(GCLDFLAGS)
+
 AM_CPPFLAGS = \
 	-imacros $(top_builddir)/config.h \
 	-DSYSCONFDIR=\""$(sysconfdir)"\" \
 	-DLIBEXECDIR=\""$(libexecdir)"\" \
 	-DROOTPREFIX=\""$(rootprefix)"\" \
 	-I${top_srcdir}/src
-
-AM_CFLAGS = ${my_CFLAGS} \
-	-fvisibility=hidden \
-	-ffunction-sections \
-	-fdata-sections
-
-AM_LDFLAGS = \
-	-Wl,--gc-sections \
-	-Wl,--as-needed
 
 SED_PROCESS = \
 	$(AM_V_GEN)$(MKDIR_P) $(dir $@) && $(SED) \
@@ -39,9 +33,11 @@ src_modtree_SOURCES = \
 	src/widechar.h
 
 src_modtree_CFLAGS = \
+	$(AM_CFLAGS) \
 	$(KMOD_CFLAGS)
 
 src_modtree_LDFLAGS = \
+	$(AM_LIBS) \
 	$(KMOD_LIBS)
 
 bin_PROGRAMS = src/modtree
