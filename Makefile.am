@@ -40,4 +40,7 @@ src_modtree_LDFLAGS = \
 	$(AM_LIBS) \
 	$(KMOD_LIBS)
 
+dist_man_MANS = \
+	doc/modtree.1
+
 bin_PROGRAMS = src/modtree

@@ -1,0 +1,48 @@
+.\" -*- nroff -*-
+.TH MODTREE 1 "March 2012" "modtree" "modtree"
+.SH NAME
+modtree \- print module dependencies
+.SH SYNOPSIS
+.B modtree
+.RB [ options ]
+.IR modules...
+.sp
+.SH DESCRIPTION
+.B modtree
+will show dependency graphs for kernel modules. The
+.B modtree
+command is able to search based on an alias, or a direct path. Alternatively,
+.B modtree
+can dump a graph for an entire kernel module tree.
+.PP
+The command prints all dependencies in the tree-like format by default.
+.SH OPTIONS
+.IP "\fB\-A, \-\-dumpall\fP"
+Dump all modules for the targetted kernel version.
+.IP "\fB\-a, \-\-ascii\fP"
+Use ascii characters for tree formatting.
+.IP "\fB\-h, \-\-help\fP"
+Print help and exit.
+.IP "\fB\-k, \-\-kernel \fIversion\fP"
+Use the kernel specified by
+\fIversion\fP
+instead of the currently running kernel
+.IP "\fB\-l, \-\-list\fP"
+Use the list output format.
+.IP "\fB\-n, \-\-noheadings\fP"
+Do not print a header line.
+.IP "\fB\-u, \-\-notruncate\fP"
+Do not truncate text in columns.
+.IP "\fB\-o, \-\-output \fIlist\fP"
+Define output columns.  Currently supported are
+.BR NAME,
+.BR PATH
+.IP "\fB\-r, \-\-raw\fP"
+Use raw output format.
+.SH AUTHORS
+.nf
+Dave Reisner <dreisner@archlinux.org>
+.fi
+.SH SEE ALSO
+.BR modprobe (8),
+.BR modinfo (8)
