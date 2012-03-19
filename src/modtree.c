@@ -366,11 +366,11 @@ static void __attribute__((__noreturn__)) usage(FILE *out)
 			" -a, --ascii            use ASCII characters for tree format\n"
 			" -h, --help             display this help text and exit\n"
 			" -k, --kernel <version> specify kernel version instead of $(uname -r)\n"
-			" -n, --noheadings       don't print column headings\n"
-			" -u, --notruncate       don't truncate text in columns\n"
 			" -l, --list             use list format output\n"
+			" -n, --noheadings       don't print column headings\n"
 			" -o, --output <list>    the output columns to be shown\n"
-			" -r, --raw              use unformatted output\n",
+			" -r, --raw              use unformatted output\n"
+			" -u, --notruncate       don't truncate text in columns\n",
 				program_invocation_short_name);
 
 	fputs("\nAvailable columns:\n", out);
