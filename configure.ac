@@ -19,6 +19,7 @@ AC_PROG_MKDIR_P
 AC_CHECK_HEADERS([ \
 	err.h \
 	langinfo.h \
+	locale.h \
 	sys/ioctl.h
 ])
 

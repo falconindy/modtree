@@ -22,7 +22,7 @@ SED_PROCESS = \
 	-e 's,@includedir\@,$(includedir),g' \
 	< $< > $@ || rm $@
 
-src_modtree_SOURCES = \
+modtree_SOURCES = \
 	src/c.h \
 	src/langinfo.c \
 	src/list.h \
@@ -32,15 +32,15 @@ src_modtree_SOURCES = \
 	src/tt.c src/tt.h \
 	src/widechar.h
 
-src_modtree_CFLAGS = \
+modtree_CFLAGS = \
 	$(AM_CFLAGS) \
 	$(KMOD_CFLAGS)
 
-src_modtree_LDFLAGS = \
+modtree_LDFLAGS = \
 	$(AM_LIBS) \
 	$(KMOD_LIBS)
 
 dist_man_MANS = \
 	doc/modtree.1
 
-bin_PROGRAMS = src/modtree
+bin_PROGRAMS = modtree
