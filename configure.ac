@@ -79,14 +79,8 @@ AC_MSG_RESULT([
 
 	prefix:                 ${prefix}
 	rootprefix              ${rootprefix}
-	sysconfdir:             ${sysconfdir}
-	libdir:                 ${libdir}
-	includedir:             ${includedir}
 
 	compiler:               ${CC}
 	cflags:                 ${with_cflags} ${CFLAGS}
 	ldflags:                ${with_ldflags} ${LDFLAGS}
-
-	logging:                ${enable_logging}
-	debug:                  ${enable_debug}
 ])
