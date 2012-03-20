@@ -37,7 +37,7 @@ modtree_CFLAGS = \
 	$(KMOD_CFLAGS)
 
 modtree_LDFLAGS = \
-	$(AM_LIBS) \
+	$(AM_LDFLAGS) \
 	$(KMOD_LIBS)
 
 dist_man_MANS = \
