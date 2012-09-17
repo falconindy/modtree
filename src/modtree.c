@@ -356,7 +356,7 @@ static int dump_full_tree(struct kmod_ctx *kmod, struct tt *tt, const char *kdir
 		close(pfd[1]);
 		fp = fdopen(pfd[0], "r");
 		while (fgets(buf, sizeof(buf), fp)) {
-			char *s, *colon;
+			char *s;
 			int r;
 
 			strtok(buf, " ");
